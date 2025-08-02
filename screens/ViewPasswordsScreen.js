@@ -1,53 +1,123 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Button } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Animated,
+  Alert,
+  Platform,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Feather } from '@expo/vector-icons';
 
 const ViewPasswordsScreen = ({ navigation }) => {
   const [passwords, setPasswords] = useState([]);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const loadPasswords = async () => {
-      try {
-        const savedPasswords = await AsyncStorage.getItem('passwords');
-        if (savedPasswords) {
-          setPasswords(JSON.parse(savedPasswords));
-        }
-      } catch (error) {
-        console.error('Failed to load passwords', error);
-      }
-    };
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadPasswords();
+    });
 
     loadPasswords();
-  }, []);
 
-  const handleClearAll = async () => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 700,
+      useNativeDriver: true,
+    }).start();
+
+    return unsubscribe;
+  }, [navigation, fadeAnim]);
+
+  const loadPasswords = async () => {
     try {
-      await AsyncStorage.removeItem('passwords');
-      setPasswords([]);
+      const savedPasswords = await AsyncStorage.getItem('passwords');
+      if (savedPasswords) {
+        setPasswords(JSON.parse(savedPasswords));
+      }
     } catch (error) {
-      console.error('Failed to clear passwords', error);
+      console.error('Failed to load passwords', error);
     }
   };
 
+  const handleClearAll = () => {
+    Alert.alert(
+      'Clear All Passwords',
+      'Are you sure you want to delete all saved passwords?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear All',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('passwords');
+              setPasswords([]);
+            } catch (error) {
+              console.error('Failed to clear passwords', error);
+            }
+          },
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+
+  const renderItem = ({ item, index }) => (
+    <Animated.View
+      style={[
+        styles.passwordItem,
+        {
+          opacity: fadeAnim,
+          transform: [
+            {
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      <View style={styles.passwordInfo}>
+        <Text style={styles.passwordName}>{item.name}</Text>
+        <Text style={styles.passwordValue}>{item.password}</Text>
+      </View>
+    </Animated.View>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Saved Passwords</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Saved Passwords</Text>
+        {passwords.length > 0 && (
+          <TouchableOpacity onPress={handleClearAll}>
+            <Feather name="trash-2" size={24} color="#c0392b" />
+          </TouchableOpacity>
+        )}
+      </View>
+
       {passwords.length === 0 ? (
-        <Text style={styles.emptyText}>No passwords saved yet</Text>
+        <View style={styles.emptyContainer}>
+          <Feather name="lock" size={60} color="#bdc3c7" />
+          <Text style={styles.emptyText}>No passwords saved yet.</Text>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => navigation.navigate('AddPassword')}
+          >
+            <Text style={styles.addButtonText}>Add Your First Password</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
-        <>
-          <FlatList
-            data={passwords}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.passwordItem}>
-                <Text style={styles.passwordName}>{item.name}</Text>
-                <Text style={styles.passwordValue}>{item.password}</Text>
-              </View>
-            )}
-          />
-          <Button title="Clear All" onPress={handleClearAll} color="red" />
-        </>
+        <FlatList
+          data={passwords}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+        />
       )}
     </View>
   );
@@ -56,31 +126,76 @@ const ViewPasswordsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f7f8fa',
     padding: 20,
   },
-  title: {
-    fontSize: 24,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 40,
     marginBottom: 20,
-    textAlign: 'center',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+  },
+  list: {
+    paddingBottom: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyText: {
-    textAlign: 'center',
     marginTop: 20,
+    fontSize: 18,
+    color: '#7f8c8d',
+  },
+  addButton: {
+    backgroundColor: '#3498db',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    marginTop: 30,
+  },
+  addButtonText: {
+    color: '#fff',
     fontSize: 16,
-    color: 'gray',
+    fontWeight: 'bold',
   },
   passwordItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  passwordInfo: {
+    flex: 1,
   },
   passwordName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#34495e',
   },
   passwordValue: {
     fontSize: 16,
+    color: '#7f8c8d',
     marginTop: 5,
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
   },
 });
 
