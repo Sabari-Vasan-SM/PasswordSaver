@@ -25,7 +25,10 @@ const HomeScreen = ({ navigation }) => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.multiRemove(['userData', 'userPin']);
+      // To ensure all user-specific data is cleared, we can clear the entire AsyncStorage.
+      // This is a simple approach for this app. For more complex apps, 
+      // you might want to selectively remove items.
+      await AsyncStorage.clear();
       navigation.dispatch(StackActions.replace('Login'));
     } catch (error) {
       Alert.alert('Error', 'Failed to logout');

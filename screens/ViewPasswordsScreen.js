@@ -35,11 +35,16 @@ const ViewPasswordsScreen = ({ navigation }) => {
 
   const loadPasswords = async () => {
     try {
-      const savedPasswords = await AsyncStorage.getItem('passwords');
-      if (savedPasswords) {
-        setPasswords(JSON.parse(savedPasswords));
-      } else {
-        setPasswords([]);
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        const userKey = `passwords_${userData.email}`;
+        const savedPasswords = await AsyncStorage.getItem(userKey);
+        if (savedPasswords) {
+          setPasswords(JSON.parse(savedPasswords));
+        } else {
+          setPasswords([]);
+        }
       }
     } catch (error) {
       console.error('Failed to load passwords', error);
@@ -61,10 +66,15 @@ const ViewPasswordsScreen = ({ navigation }) => {
           text: 'Delete',
           onPress: async () => {
             try {
-              const newPasswords = [...passwords];
-              newPasswords.splice(index, 1);
-              await AsyncStorage.setItem('passwords', JSON.stringify(newPasswords));
-              setPasswords(newPasswords);
+              const userDataString = await AsyncStorage.getItem('userData');
+              if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                const userKey = `passwords_${userData.email}`;
+                const newPasswords = [...passwords];
+                newPasswords.splice(index, 1);
+                await AsyncStorage.setItem(userKey, JSON.stringify(newPasswords));
+                setPasswords(newPasswords);
+              }
             } catch (error) {
               console.error('Failed to delete password', error);
             }
@@ -85,8 +95,13 @@ const ViewPasswordsScreen = ({ navigation }) => {
           text: 'Clear All',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem('passwords');
-              setPasswords([]);
+              const userDataString = await AsyncStorage.getItem('userData');
+              if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                const userKey = `passwords_${userData.email}`;
+                await AsyncStorage.removeItem(userKey);
+                setPasswords([]);
+              }
             } catch (error) {
               console.error('Failed to clear passwords', error);
             }

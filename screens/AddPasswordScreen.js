@@ -45,10 +45,19 @@ const AddPasswordScreen = ({ navigation }) => {
     }
 
     try {
-      const existingPasswords = await AsyncStorage.getItem('passwords');
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (!userDataString) {
+        Alert.alert('Error', 'User not found. Please login again.');
+        navigation.dispatch(StackActions.replace('Login'));
+        return;
+      }
+      const userData = JSON.parse(userDataString);
+      const userKey = `passwords_${userData.email}`;
+
+      const existingPasswords = await AsyncStorage.getItem(userKey);
       let passwords = existingPasswords ? JSON.parse(existingPasswords) : [];
       passwords.push({ appName, name, password });
-      await AsyncStorage.setItem('passwords', JSON.stringify(passwords));
+      await AsyncStorage.setItem(userKey, JSON.stringify(passwords));
       
       Alert.alert('Success', 'Password saved successfully', [
         { text: 'OK', onPress: () => navigation.goBack() }
