@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 
 const AddPasswordScreen = ({ navigation }) => {
+  const [appName, setAppName] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
 
@@ -38,15 +39,15 @@ const AddPasswordScreen = ({ navigation }) => {
   }, [fadeAnim, slideAnim]);
 
   const handleSavePassword = async () => {
-    if (!name || !password) {
-      Alert.alert('Error', 'Please enter both name and password');
+    if (!appName || !name || !password) {
+      Alert.alert('Error', 'Please fill all fields');
       return;
     }
 
     try {
       const existingPasswords = await AsyncStorage.getItem('passwords');
       let passwords = existingPasswords ? JSON.parse(existingPasswords) : [];
-      passwords.push({ name, password });
+      passwords.push({ appName, name, password });
       await AsyncStorage.setItem('passwords', JSON.stringify(passwords));
       
       Alert.alert('Success', 'Password saved successfully', [
@@ -71,7 +72,14 @@ const AddPasswordScreen = ({ navigation }) => {
           <Animated.View style={[styles.form, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <TextInput
               style={styles.input}
-              placeholder="Name (e.g., Gmail, Netflix)"
+              placeholder="App or Site Name (e.g., Google)"
+              placeholderTextColor="#999"
+              value={appName}
+              onChangeText={setAppName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Username or Email"
               placeholderTextColor="#999"
               value={name}
               onChangeText={setName}

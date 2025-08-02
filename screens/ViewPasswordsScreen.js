@@ -83,6 +83,7 @@ const ViewPasswordsScreen = ({ navigation }) => {
       ]}
     >
       <View style={styles.passwordInfo}>
+        <Text style={styles.appName}>{item.appName}</Text>
         <Text style={styles.passwordName}>{item.name}</Text>
         <Text style={styles.passwordValue}>{item.password}</Text>
       </View>
@@ -185,6 +186,12 @@ const styles = StyleSheet.create({
   },
   passwordInfo: {
     flex: 1,
+  },
+  appName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginBottom: 5,
   },
   passwordName: {
     fontSize: 18,
