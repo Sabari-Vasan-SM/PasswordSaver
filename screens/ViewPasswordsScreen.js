@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 
 const ViewPasswordsScreen = ({ navigation }) => {
   const [passwords, setPasswords] = useState([]);
@@ -37,10 +38,41 @@ const ViewPasswordsScreen = ({ navigation }) => {
       const savedPasswords = await AsyncStorage.getItem('passwords');
       if (savedPasswords) {
         setPasswords(JSON.parse(savedPasswords));
+      } else {
+        setPasswords([]);
       }
     } catch (error) {
       console.error('Failed to load passwords', error);
     }
+  };
+
+  const handleCopyPassword = (password) => {
+    Clipboard.setStringAsync(password);
+    Alert.alert('Copied', 'Password copied to clipboard.');
+  };
+
+  const handleDeletePassword = (index) => {
+    Alert.alert(
+      'Delete Password',
+      'Are you sure you want to delete this password?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            try {
+              const newPasswords = [...passwords];
+              newPasswords.splice(index, 1);
+              await AsyncStorage.setItem('passwords', JSON.stringify(newPasswords));
+              setPasswords(newPasswords);
+            } catch (error) {
+              console.error('Failed to delete password', error);
+            }
+          },
+          style: 'destructive',
+        },
+      ]
+    );
   };
 
   const handleClearAll = () => {
@@ -86,6 +118,14 @@ const ViewPasswordsScreen = ({ navigation }) => {
         <Text style={styles.appName}>{item.appName}</Text>
         <Text style={styles.passwordName}>{item.name}</Text>
         <Text style={styles.passwordValue}>{item.password}</Text>
+      </View>
+      <View style={styles.passwordActions}>
+        <TouchableOpacity onPress={() => handleCopyPassword(item.password)}>
+          <Feather name="copy" size={24} color="#3498db" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDeletePassword(index)} style={{ marginLeft: 15 }}>
+          <Feather name="trash-2" size={24} color="#c0392b" />
+        </TouchableOpacity>
       </View>
     </Animated.View>
   );
@@ -186,6 +226,9 @@ const styles = StyleSheet.create({
   },
   passwordInfo: {
     flex: 1,
+  },
+  passwordActions: {
+    flexDirection: 'row',
   },
   appName: {
     fontSize: 20,
