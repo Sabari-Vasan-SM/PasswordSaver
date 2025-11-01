@@ -5,14 +5,16 @@ Securely store, manage, and access all your passwords with ease!
 
 ---
 
-## 🛠 **ScreenShots** 
+## 🛠 **Screenshots**
 
-![WhatsApp Image 2025-08-04 at 11 56 09_2d34ed70](https://github.com/user-attachments/assets/c445248e-13e9-4957-a341-3e4bab487cd8)
-![WhatsApp Image 2025-08-04 at 11 51 54_48175cc4](https://github.com/user-attachments/assets/d8c9a3b5-d2a5-4a95-aacd-8b5e9055a813)
-![WhatsApp Image 2025-08-04 at 11 51 54_09f94cf8](https://github.com/user-attachments/assets/e9b8e108-d759-4e7d-b57e-bfea357a4698)
-![WhatsApp Image 2025-08-04 at 11 51 53_099bc859](https://github.com/user-attachments/assets/de0c9c1a-f8dd-454a-ae9c-72d3fcb84c2e)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c445248e-13e9-4957-a341-3e4bab487cd8" width="23%" />
+  <img src="https://github.com/user-attachments/assets/d8c9a3b5-d2a5-4a95-aacd-8b5e9055a813" width="23%" />
+  <img src="https://github.com/user-attachments/assets/e9b8e108-d759-4e7d-b57e-bfea357a4698" width="23%" />
+  <img src="https://github.com/user-attachments/assets/de0c9c1a-f8dd-454a-ae9c-72d3fcb84c2e" width="23%" />
+</p>
 
-
+---
 ## ✨ **Features**  
 
 - 🔑 **User Authentication** – Secure sign-up & login to protect your data.  
