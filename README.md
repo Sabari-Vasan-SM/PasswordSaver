@@ -1,5 +1,5 @@
 # 🔐 **Password Saver** – A React Native Application  
-
+Secure. Store. Simplify  
 Securely store, manage, and access all your passwords with ease!  
 **Password Saver** is a mobile app built with **React Native** and **Expo**, designed to make password management simple, intuitive, and safe.  
 
